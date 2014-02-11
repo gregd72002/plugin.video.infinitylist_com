@@ -12,3 +12,4 @@
 	- TODO: use data-* attribute instead
 - Added search functionality
 - Added additional match for vimeo (URLs without protocol)
+
