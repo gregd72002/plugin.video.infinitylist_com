@@ -7,3 +7,8 @@
 - Small bugfix
 2.0.3
 - Fixed site changes (video title)
+2.0.4
+- Fixed site changes (video title)
+	- TODO: use data-* attribute instead
+- Added search functionality
+- Added additional match for vimeo (URLs without protocol)
