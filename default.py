@@ -131,12 +131,13 @@ def playRandom(url):
     spl = content.split('<div id="videoPost-')
     for i in range(1, len(spl), 1):
         entry = spl[i]
-        match = re.compile('<span class="text">(.+?)</span>', re.DOTALL).findall(entry)
+        match = re.compile('<span class="title">(.+?)</span>', re.DOTALL).findall(entry)
         title = cleanTitle(match[0])
         matchYoutube = re.compile('data-youtube-video-i-d="(.+?)"', re.DOTALL).findall(entry)
         matchVimeo = re.compile('data-vimeo-video-i-d="(.+?)"', re.DOTALL).findall(entry)
         matchYoutube2 = re.compile('http://www.youtube.com/embed/(.+?)\\?', re.DOTALL).findall(entry)
         matchVimeo2 = re.compile('http://player.vimeo.com/video/(.+?)\\?', re.DOTALL).findall(entry)
+        matchVimeo3 = re.compile('//player.vimeo.com/video/(.+?)\\?', re.DOTALL).findall(entry)
         url = ""
         if matchYoutube:
             url = getYoutubeUrl(matchYoutube[0])
@@ -146,6 +147,8 @@ def playRandom(url):
             url = getYoutubeUrl(matchYoutube2[0])
         elif matchVimeo2:
             url = getVimeoUrl(matchVimeo2[0])
+        elif matchVimeo3:
+            url = getVimeoUrl(matchVimeo3[0])
         if url:
             listitem = xbmcgui.ListItem(title)
             playlist.add(url, listitem)
