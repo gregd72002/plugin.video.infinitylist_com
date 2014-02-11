@@ -23,6 +23,7 @@ urlMain = "http://www.infinitylist.com"
 def index():
     xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_LABEL)
     addDir(translation(30002), "ALL", 'listVideosMain', "")
+    addDir("Search", urlMain + "/search/?burnt_inline_load=true&s=", 'showSearch', "")
     content = getUrl(urlMain)
     content = content[content.find('<ul id="mainMenu" class="menu">'):]
     content = content[:content.find('</ul>')]
@@ -68,7 +69,7 @@ def listVideos(url):
                 length = str(int(match[0])/60)
                 if length == "0":
                     length = "1"
-        match = re.compile('<span class="text">(.+?)</span>', re.DOTALL).findall(entry)
+        match = re.compile('<span class="title">(.+?)</span>', re.DOTALL).findall(entry)
         title = cleanTitle(match[0])
         match = re.compile('data-thumbnail-image-u-r-l="(.+?)"', re.DOTALL).findall(entry)
         thumb = match[0]
@@ -76,6 +77,7 @@ def listVideos(url):
         matchVimeo = re.compile('data-vimeo-video-i-d="(.+?)"', re.DOTALL).findall(entry)
         matchYoutube2 = re.compile('http://www.youtube.com/embed/(.+?)\\?', re.DOTALL).findall(entry)
         matchVimeo2 = re.compile('http://player.vimeo.com/video/(.+?)\\?', re.DOTALL).findall(entry)
+        matchVimeo3 = re.compile('//player.vimeo.com/video/(.+?)\\?', re.DOTALL).findall(entry)
         url = ""
         if matchYoutube:
             addLink(title, matchYoutube[0], 'playYoutubeVideo', thumb, date, length)
@@ -85,6 +87,8 @@ def listVideos(url):
             addLink(title, matchYoutube2[0], 'playYoutubeVideo', thumb, date, length)
         elif matchVimeo2:
             addLink(title, matchVimeo2[0], 'playVimeoVideo', thumb, date, length)
+        elif matchVimeo3:
+            addLink(title, matchVimeo3[0], 'playVimeoVideo', thumb, date, length)
     match = re.compile('<div id="featuredContentPageNumbers" class="featuredContentPageNumbers pageNavigation infinite">.+?<a href="(.+?)">.+?</a>', re.DOTALL).findall(content)
     if match:
         url = match[0]+"?burnt_inline_load=true"
@@ -200,6 +204,17 @@ def addDir(name, url, mode, iconimage):
     ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=u, listitem=liz, isFolder=True)
     return ok
 
+def prompt_for_search():
+    # prompt the user to input search text
+    kb = xbmc.Keyboard('', 'Search for')
+
+    kb.doModal()
+    if not kb.isConfirmed():
+        return None;
+
+    searchterm = kb.getText().strip()
+    return searchterm
+
 params = parameters_string_to_dict(sys.argv[2])
 mode = urllib.unquote_plus(params.get('mode', ''))
 url = urllib.unquote_plus(params.get('url', ''))
@@ -214,5 +229,7 @@ elif mode == 'playVimeoVideo':
     playVimeoVideo(url)
 elif mode == 'playRandom':
     playRandom(url)
+elif mode == 'showSearch':
+    listVideos(url + prompt_for_search())
 else:
     index()
